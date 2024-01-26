@@ -53,9 +53,10 @@ class PacmanProblem(search.Problem):
         """ Generates the successor state """
         possible_moves = []
         for move in MOVES:
-            if self.result(state, move) is not None:
-                possible_moves.append(move)
-        return possible_moves
+            move_result = self.result(state, move)
+            if move_result is not None:
+                possible_moves.append(tuple(move, move_result))
+        return tuple(possible_moves)
 #       utils.raiseNotDefined()
 
     def move_packman(self, state, move):
@@ -63,7 +64,6 @@ class PacmanProblem(search.Problem):
 
     def move_ghosts(self, state):
         pass
-
 
     def result(self, state, move):
         """given state and an action and return a new state"""
