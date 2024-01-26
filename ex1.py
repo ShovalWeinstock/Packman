@@ -12,6 +12,14 @@ GREEN = 50
 PACMAN = 77
 
 
+def tuple_state_to_list(tuple_state):
+    return (list(row) for row in tuple_state)
+
+
+def list_state_to_tuple(list_state):
+    return tuple(tuple(row) for row in list_state)
+
+
 class PacmanProblem(search.Problem):
     """This class implements a pacman problem"""
 
