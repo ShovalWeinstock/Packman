@@ -50,7 +50,9 @@ class PacmanProblem(search.Problem):
         self.locations = dict.fromkeys((7, 2, 3, 4, 5))
         self.dead_end = False
         self.state_n_rows = len(initial)
-        self.state_n_cols = len(initial[0])
+        self.state_n_cols = 0
+        if self.state_n_rows > 0:
+            self.state_n_cols = len(initial[0])
 
         """ Constructor only needs the initial state.
         Don't forget to set the goal or implement the goal test"""
@@ -64,7 +66,6 @@ class PacmanProblem(search.Problem):
             if move_result is not None:
                 possible_moves.append((move, move_result))
         return tuple(possible_moves)
-#       utils.raiseNotDefined()
 
     def get_character_location(self, state, character):
         for row_i in range(self.state_n_rows):
@@ -110,7 +111,6 @@ class PacmanProblem(search.Problem):
         if self.dead_end:
             return None
         return list_state_to_tuple(list_state)
-#       utils.raiseNotDefined()
 
     def goal_test(self, state):
         """ given a state, checks if this is the goal state, compares to the created goal state"""
@@ -118,7 +118,6 @@ class PacmanProblem(search.Problem):
             if PILL in row:
                 return False
         return True
-#       utils.raiseNotDefined()
 
     def h(self, node):
         """ This is the heuristic. It get a node (not a state)

@@ -1,4 +1,4 @@
-import ex1_original
+import ex1
 import search
 
 
@@ -20,7 +20,7 @@ def solve_problems(problem, algorithm):
     print
 
     try:
-        p = ex1_original.create_pacman_problem(problem)
+        p = ex1.create_pacman_problem(problem)
     except Exception as e:
         print("Error creating problem: ", e)
         return None
