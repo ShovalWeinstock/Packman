@@ -119,10 +119,14 @@ class PacmanProblem(search.Problem):
                 return False
         return True
 
-    def h(self, node):
-        """ This is the heuristic. It get a node (not a state)
+    def h(self, node): #todo check
+        """ This is the heuristic. It gets a node (not a state)
         and returns a goal distance estimate"""
-        utils.raiseNotDefined() #todo fill
+        state = node.state
+        remaining_pills = 0
+        for row in state:
+            remaining_pills += row.count(PILL)
+        return remaining_pills
 
 
 def create_pacman_problem(game):
