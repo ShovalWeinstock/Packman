@@ -26,6 +26,7 @@ DOWN = "D"
 STAY = "S"
 
 MOVES = [RIGHT, DOWN, LEFT, UP]
+GHOSTS = [RED, BLUE, YELLOW, GREEN]
 
 ILLEGAL_MOVE = -1
 LEGAL_MOVE = 0
@@ -44,7 +45,7 @@ def manhattan_distance(point1, point2):
     return sum(abs(val1-val2) for val1, val2 in zip(point1, point2))
 
 
-def get_new_location(old_location, move):
+def calc_new_location(old_location, move):
     new_row = old_location[0]
     new_col = old_location[1]
     if move == UP:
@@ -92,18 +93,49 @@ class PacmanProblem(search.Problem):
                     return [row_i, col_i]
         return None
 
-    def is_legal_location(self, state, location):
+    def get_ghost_location(self, state, ghost):
+        location = self.get_location(state, ghost)
+        if location is None:
+            # ghost on pill
+            location = self.get_location(state, ghost+1)
+        return location
+
+    def is_in_board(self, location):
         row = location[0]
         col = location[1]
-        # check if the location is out of the board
-        if (row < 0 or row >= self.state_n_rows) or (col < 0 or col >= self.state_n_cols):
+        return 0 <= row < self.state_n_rows and 0 <= col < self.state_n_cols
+
+
+    def is_legal_location(self, state, location):
+        # row = location[0]
+        # col = location[1]
+        # # check if the location is out of the board
+        # if (row < 0 or row >= self.state_n_rows) or (col < 0 or col >= self.state_n_cols):
+        #     return False
+        if not self.is_in_board(location):
             return False
         # the location is in the board. check that the location is free
-        in_cell = state[row][col]
-        if in_cell != EMPTY and in_cell != PILL:
+        in_cell = state[location[0]][location[1]]
+        if in_cell != EMPTY and in_cell != PILL and in_cell != PACMAN:
             return False
 
         return True
+
+    # def is_legal_ghost_location(self, state, location):
+    #     # check that the location is in the board
+    #     if not self.is_in_board(location):
+    #         return False
+    #     row = location[0]
+    #     col = location[1]
+    #     # check if there is a wall in the location
+    #     if state[row][col] == WALL:
+    #         return False
+    #     # check if there is another ghost in the location
+    #     for ghost in GHOSTS:
+    #         ghost_location = self.locations[ghost%10]
+    #         if ghost_location is not None and ghost_location[0] == row and ghost_location[1] == col:
+    #             return False #loaction is taken by another ghost
+    #     return True
 
     def move_pacman(self, state, move):
         # todo fill (is wall / end of board an illegal action, or no move?)
@@ -112,7 +144,7 @@ class PacmanProblem(search.Problem):
         if pacman_old_location is None:
             return ILLEGAL_MOVE
 
-        pacman_new_location = get_new_location(pacman_old_location, move)
+        pacman_new_location = calc_new_location(pacman_old_location, move)
         if not self.is_legal_location(state, pacman_new_location):
             return ILLEGAL_MOVE
 
@@ -125,8 +157,33 @@ class PacmanProblem(search.Problem):
         self.locations[7] = [pacman_new_row, pacman_new_col]
         return LEGAL_MOVE
 
+    def move_ghost(self, state, old_location, new_location, ghost):
+        pass
+
     def move_ghosts(self, state):
-        pass #todo fill
+        pacman_location = self.locations[7]
+        for ghost in GHOSTS:
+            old_location = self.get_location(state, ghost)
+            if old_location is None:
+                continue
+            action = STAY
+            min_manhattan = math.inf
+            new_location = []
+            for move in MOVES:
+                potential_location = calc_new_location(old_location, move)
+                if not self.is_legal_location(state, potential_location):
+                    continue
+                manhattan = manhattan_distance(potential_location, pacman_location)
+                if manhattan < min_manhattan:
+                    min_manhattan = manhattan
+                    action = move
+                    new_location = potential_location
+            if action != STAY:
+                # check if the ghost will eat pacman
+                if min_manhattan == 0:
+                    self.dead_end = True
+                    break
+                self.move_ghost(state, old_location, new_location, ghost)
 
     def result(self, state, move):
         """given state and an action and return a new state"""
