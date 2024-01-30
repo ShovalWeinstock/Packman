@@ -27,6 +27,10 @@ STAY = "S"
 
 MOVES = [RIGHT, DOWN, LEFT, UP]
 
+ILLEGAL_MOVE = -1
+LEGAL_MOVE = 0
+
+
 
 def tuple_state_to_list(tuple_state):
     return (list(row) for row in tuple_state)
@@ -38,6 +42,20 @@ def list_state_to_tuple(list_state):
 
 def manhattan_distance(point1, point2):
     return sum(abs(val1-val2) for val1, val2 in zip(point1, point2))
+
+
+def get_new_location(old_location, move):
+    new_row = old_location[0]
+    new_col = old_location[1]
+    if move == UP:
+        new_row -= 1
+    elif move == DOWN:
+        new_row += 1
+    elif move == RIGHT:
+        new_col += 1
+    elif move == LEFT:
+        new_col -= 1
+    return [new_row, new_col]
 
 
 class PacmanProblem(search.Problem):
@@ -67,36 +85,45 @@ class PacmanProblem(search.Problem):
                 possible_moves.append((move, move_result))
         return tuple(possible_moves)
 
-    def get_character_location(self, state, character):
+    def get_location(self, state, character):
         for row_i in range(self.state_n_rows):
             for col_i in range(self.state_n_cols):
                 if state[row_i][col_i] == character:
                     return [row_i, col_i]
         return None
 
-    def move_pacman(self, state, move):
-        # get pacman's old location
-        pacman_old_location = self.get_character_location(state, PACMAN)
-        if pacman_old_location is None:
-            return
-        pacman_old_row = pacman_old_location[0]
-        pacman_old_col = pacman_old_location[1]
+    def is_legal_location(self, state, location):
+        row = location[0]
+        col = location[1]
+        # check if the location is out of the board
+        if (row < 0 or row >= self.state_n_rows) or (col < 0 or col >= self.state_n_cols):
+            return False
+        # the location is in the board. check that the location is free
+        in_cell = state[row][col]
+        if in_cell != EMPTY and in_cell != PILL:
+            return False
 
-        # move pacman according to the given move
-        pacman_new_row = pacman_old_row
-        pacman_new_col = pacman_old_col
-        if move == UP:
-            pass #todo fill (if it is wall / end of board - illegal action or no move?)
-        elif move == DOWN:
-            pass #todo fill
-        elif move == RIGHT:
-            pass #todo fill
-        elif move == LEFT:
-            pass #todo fill
+        return True
+
+    def move_pacman(self, state, move):
+        # todo fill (is wall / end of board an illegal action, or no move?)
+        # get pacman's old location
+        pacman_old_location = self.get_location(state, PACMAN)
+        if pacman_old_location is None:
+            return ILLEGAL_MOVE
+
+        pacman_new_location = get_new_location(pacman_old_location, move)
+        if not self.is_legal_location(state, pacman_new_location):
+            return ILLEGAL_MOVE
+
+        # move pacman
+        state[pacman_old_location[0]][pacman_old_location[1]] = EMPTY
+        pacman_new_row = pacman_new_location[0]
+        pacman_new_col = pacman_new_location[1]
         state[pacman_new_row][pacman_new_col] = PACMAN
-        state[pacman_old_row][pacman_old_col] = EMPTY
         # 7 is magic number for pacman
         self.locations[7] = [pacman_new_row, pacman_new_col]
+        return LEGAL_MOVE
 
     def move_ghosts(self, state):
         pass #todo fill
@@ -106,7 +133,10 @@ class PacmanProblem(search.Problem):
         self.locations = dict.fromkeys((7, 2, 3, 4, 5))
         self.dead_end = False
         list_state = tuple_state_to_list(state)
-        self.move_pacman(list_state, move)
+        pacman_move = self.move_pacman(list_state, move)
+        # todo maybe I can loose the ILLEGAL MOVE and use self.dead_end instead
+        if pacman_move == ILLEGAL_MOVE:
+            return None
         self.move_ghosts(list_state)
         if self.dead_end:
             return None
