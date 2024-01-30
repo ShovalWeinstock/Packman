@@ -4,8 +4,6 @@ import utils
 
 id = "209540731"
 
-# todo what is an invalid action? eaten? pacman go to wall/end of screen?
-
 """ Rules """
 RED = 20
 BLUE = 30
@@ -114,32 +112,19 @@ class PacmanProblem(search.Problem):
 
         return True
 
-    # def is_legal_ghost_location(self, state, location):
-    #     # check that the location is in the board
-    #     if not self.is_in_board(location):
-    #         return False
-    #     row = location[0]
-    #     col = location[1]
-    #     # check if there is a wall in the location
-    #     if state[row][col] == WALL:
-    #         return False
-    #     # check if there is another ghost in the location
-    #     for ghost in GHOSTS:
-    #         ghost_location = self.locations[ghost%10]
-    #         if ghost_location is not None and ghost_location[0] == row and ghost_location[1] == col:
-    #             return False #loaction is taken by another ghost
-    #     return True
-
     def move_pacman(self, state, move):
-        # todo fill (is wall / end of board an illegal action, or no move?)
         # get pacman's old location
         pacman_old_location = self.get_location(state, PACMAN)
         if pacman_old_location is None:
-            return ILLEGAL_MOVE
+            self.dead_end = True
+            return #todo
+            #return ILLEGAL_MOVE
 
         pacman_new_location = calc_new_location(pacman_old_location, move)
         if not self.is_legal_location(state, pacman_new_location):
-            return ILLEGAL_MOVE
+            self.dead_end = True
+            return  # todo
+            #return ILLEGAL_MOVE
 
         # move pacman
         state[pacman_old_location[0]][pacman_old_location[1]] = EMPTY
@@ -148,7 +133,7 @@ class PacmanProblem(search.Problem):
         state[pacman_new_row][pacman_new_col] = PACMAN
         # 7 is magic number for pacman
         self.locations[7] = [pacman_new_row, pacman_new_col]
-        return LEGAL_MOVE
+        #return LEGAL_MOVE todo
 
     def move_ghost(self, state, old_location, new_location, ghost):
         old_row = old_location[0]
@@ -169,12 +154,10 @@ class PacmanProblem(search.Problem):
         else:
             state[new_row][new_col] = ghost
 
-        #self.locations[ghost//10] = [new_row, new_col] todo update?
-
     def move_ghosts(self, state):
         pacman_location = self.locations[7]
         for ghost in GHOSTS:
-            old_location = self.get_location(state, ghost)
+            old_location = self.get_ghost_location(state, ghost)
             if old_location is None:
                 continue
             action = STAY
@@ -201,10 +184,13 @@ class PacmanProblem(search.Problem):
         self.locations = dict.fromkeys((7, 2, 3, 4, 5))
         self.dead_end = False
         list_state = tuple_state_to_list(state)
-        pacman_move = self.move_pacman(list_state, move)
-        # todo maybe I can loose the ILLEGAL MOVE and use self.dead_end instead
-        if pacman_move == ILLEGAL_MOVE:
+        #pacman_move = self.move_pacman(list_state, move)
+        self.move_pacman(list_state, move)
+        if self.dead_end:
             return None
+        # # todo maybe I can loose the ILLEGAL MOVE and use self.dead_end instead
+        # if pacman_move == ILLEGAL_MOVE:
+        #     return None
         self.move_ghosts(list_state)
         if self.dead_end:
             return None
@@ -219,13 +205,15 @@ class PacmanProblem(search.Problem):
                     return False
         return True
 
-    def h(self, node): #todo check
+    def h(self, node):
         """ This is the heuristic. It gets a node (not a state)
         and returns a goal distance estimate"""
         state = node.state
         remaining_pills = 0
         for row in state:
-            remaining_pills += row.count(PILL)
+            for item in row:
+                if item % 10 == 1:
+                    remaining_pills += 1
         return remaining_pills
 
 
