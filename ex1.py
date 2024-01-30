@@ -158,7 +158,25 @@ class PacmanProblem(search.Problem):
         return LEGAL_MOVE
 
     def move_ghost(self, state, old_location, new_location, ghost):
-        pass
+        old_row = old_location[0]
+        old_col = old_location[1]
+        new_row = new_location[0]
+        new_col = new_location[1]
+
+        pill_old_loc = state[old_row][old_col] % 10
+        pill_new_loc = state[new_row][new_col] % 10
+
+        if pill_old_loc:
+            state[old_row][old_col] = PILL
+        else:
+            state[old_row][old_col] = EMPTY
+
+        if pill_new_loc:
+            state[new_row][new_col] = ghost + 1
+        else:
+            state[new_row][new_col] = ghost
+
+        #self.locations[ghost//10] = [new_row, new_col] todo update?
 
     def move_ghosts(self, state):
         pacman_location = self.locations[7]
