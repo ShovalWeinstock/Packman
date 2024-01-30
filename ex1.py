@@ -32,9 +32,8 @@ ILLEGAL_MOVE = -1
 LEGAL_MOVE = 0
 
 
-
 def tuple_state_to_list(tuple_state):
-    return (list(row) for row in tuple_state)
+    return [list(row) for row in tuple_state]
 
 
 def list_state_to_tuple(list_state):
@@ -105,13 +104,7 @@ class PacmanProblem(search.Problem):
         col = location[1]
         return 0 <= row < self.state_n_rows and 0 <= col < self.state_n_cols
 
-
     def is_legal_location(self, state, location):
-        # row = location[0]
-        # col = location[1]
-        # # check if the location is out of the board
-        # if (row < 0 or row >= self.state_n_rows) or (col < 0 or col >= self.state_n_cols):
-        #     return False
         if not self.is_in_board(location):
             return False
         # the location is in the board. check that the location is free
@@ -220,8 +213,10 @@ class PacmanProblem(search.Problem):
     def goal_test(self, state):
         """ given a state, checks if this is the goal state, compares to the created goal state"""
         for row in state:
-            if PILL in row:
-                return False
+            for item in row:
+                # if there is pill on the board
+                if item % 10 == 1:
+                    return False
         return True
 
     def h(self, node): #todo check
