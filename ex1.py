@@ -26,10 +26,6 @@ STAY = "S"
 MOVES = [RIGHT, DOWN, LEFT, UP]
 GHOSTS = [RED, BLUE, YELLOW, GREEN]
 
-# todo delete
-# ILLEGAL_MOVE = -1
-# LEGAL_MOVE = 0
-
 
 def tuple_state_to_list(tuple_state):
     return [list(row) for row in tuple_state]
@@ -110,7 +106,6 @@ class PacmanProblem(search.Problem):
         in_cell = state[location[0]][location[1]]
         if in_cell != EMPTY and in_cell != PILL and in_cell != PACMAN:
             return False
-
         return True
 
     def move_pacman(self, state, move):
@@ -118,14 +113,12 @@ class PacmanProblem(search.Problem):
         pacman_old_location = self.get_location(state, PACMAN)
         if pacman_old_location is None:
             self.dead_end = True
-            return #todo
-            #return ILLEGAL_MOVE
+            return
 
         pacman_new_location = calc_new_location(pacman_old_location, move)
         if not self.is_legal_location(state, pacman_new_location):
             self.dead_end = True
-            return  # todo
-            #return ILLEGAL_MOVE
+            return
 
         # move pacman
         state[pacman_old_location[0]][pacman_old_location[1]] = EMPTY
@@ -134,7 +127,6 @@ class PacmanProblem(search.Problem):
         state[pacman_new_row][pacman_new_col] = PACMAN
         # 7 is magic number for pacman
         self.locations[7] = [pacman_new_row, pacman_new_col]
-        #return LEGAL_MOVE todo
 
     def move_ghost(self, state, old_location, new_location, ghost):
         old_row = old_location[0]
@@ -185,13 +177,9 @@ class PacmanProblem(search.Problem):
         self.locations = dict.fromkeys((7, 2, 3, 4, 5))
         self.dead_end = False
         list_state = tuple_state_to_list(state)
-        #pacman_move = self.move_pacman(list_state, move)
         self.move_pacman(list_state, move)
-        # todo maybe I can loose the ILLEGAL MOVE and use self.dead_end instead
         if self.dead_end:
             return None
-        # if pacman_move == ILLEGAL_MOVE:
-        #     return None
         self.move_ghosts(list_state)
         if self.dead_end:
             return None
