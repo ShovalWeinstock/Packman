@@ -26,8 +26,9 @@ STAY = "S"
 MOVES = [RIGHT, DOWN, LEFT, UP]
 GHOSTS = [RED, BLUE, YELLOW, GREEN]
 
-ILLEGAL_MOVE = -1
-LEGAL_MOVE = 0
+# todo delete
+# ILLEGAL_MOVE = -1
+# LEGAL_MOVE = 0
 
 
 def tuple_state_to_list(tuple_state):
@@ -186,9 +187,9 @@ class PacmanProblem(search.Problem):
         list_state = tuple_state_to_list(state)
         #pacman_move = self.move_pacman(list_state, move)
         self.move_pacman(list_state, move)
+        # todo maybe I can loose the ILLEGAL MOVE and use self.dead_end instead
         if self.dead_end:
             return None
-        # # todo maybe I can loose the ILLEGAL MOVE and use self.dead_end instead
         # if pacman_move == ILLEGAL_MOVE:
         #     return None
         self.move_ghosts(list_state)
