@@ -4,6 +4,7 @@ import utils
 
 id = "209540731"
 
+
 """ Rules """
 RED = 20
 BLUE = 30
